@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.urlencoded({extended: true}))
 
-app.get("/",(req,resp)=> 
+app.get("/cadastro",(req,resp)=> 
     {
         resp.send(` <html>
             <head>
