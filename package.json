@@ -1,0 +1,24 @@
+{
+  "name": "ppi-aulas",
+  "version": "1.0.0",
+  "description": "Aulas e projetos De Programaçao Para a Internet",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cauamaced0/PPI-aulas.git"
+  },
+  "author": "Caua Macedo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cauamaced0/PPI-aulas/issues"
+  },
+  "homepage": "https://github.com/cauamaced0/PPI-aulas#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
