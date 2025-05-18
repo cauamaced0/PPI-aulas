@@ -1,5 +1,10 @@
 import express from "express";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const port = 3050;
 const host = "0.0.0.0";
 
@@ -14,11 +19,30 @@ app.get("/",(req,resp)=>
                 <title> Pagina Inicial </title>
             </head>
             <body>
-
+            <p>Bemvindo ao nosso site </p>
             </body>
                     </html>`)
+        resp.end();
     })
 
+    app.post('/cadastro', (req, res) => {
+    const { titulo, genero, plataforma, ano } = req.body;
+
+    console.log('Jogo cadastrado:');
+    console.log(`Título: ${titulo}`);
+    console.log(`Gênero: ${genero}`);
+    console.log(`Plataforma: ${plataforma}`);
+    console.log(`Ano: ${ano}`);
+
+    res.send(`
+        <h2>Jogo cadastrado com sucesso!</h2>
+        <p><strong>Título:</strong> ${titulo}</p>
+        <p><strong>Gênero:</strong> ${genero}</p>
+        <p><strong>Plataforma:</strong> ${plataforma}</p>
+        <p><strong>Ano:</strong> ${ano}</p>
+        <a href="/">Cadastrar outro</a>
+    `);
+});
 app.listen(port,host, () => {
   console.log('App de exemplo esta rodando na porta 3050' )
 })
