@@ -24,7 +24,7 @@ app.get("/",(req,resp)=>
             </head>
             <body>
              <h1>Cadastro de Jogo</h1>
-  <form action="/cadastro" method="POST">
+  <form action="/" method="POST">
     <label for="titulo">Título do Jogo:</label>
     <br/>
     <input type="text" id="titulo" name="titulo" required />
