@@ -51,7 +51,7 @@ app.get("/",(req,resp)=>
         resp.end();
     })
 
-    app.post('/cadastro', (req, res) => {
+    app.post('/', (req, res) => {
     const { titulo, genero, plataforma, ano } = req.body;
 
     console.log('Jogo cadastrado:');
