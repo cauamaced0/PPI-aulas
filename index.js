@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'PPI-AULAS')));
 
 
 // o HTML nao aparecia a menos q fosse feito dentro do app.get
-app.get("/cadastro",(req,resp)=> 
+app.get("/",(req,resp)=> 
     {
         resp.send(` <html>
             <head>
