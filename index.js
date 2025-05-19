@@ -12,6 +12,10 @@ const app = express();
 
 app.use(express.urlencoded({extended: true}))
 
+app.use(express.static(path.join(__dirname, 'PPI-AULAS')));
+
+
+// o HTML nao aparecia a menos q fosse feito dentro do app.get
 app.get("/cadastro",(req,resp)=> 
     {
         resp.send(` <html>
@@ -19,7 +23,29 @@ app.get("/cadastro",(req,resp)=>
                 <title> Pagina Inicial </title>
             </head>
             <body>
-            <p>Bemvindo ao nosso site </p>
+             <h1>Cadastro de Jogo</h1>
+  <form action="/cadastro" method="POST">
+    <label for="titulo">Título do Jogo:</label>
+    <br/>
+    <input type="text" id="titulo" name="titulo" required />
+    <br/>
+    <br/>
+
+    <label for="genero">Gênero:</label><br/>
+    <input type="text" id="genero" name="genero" required />
+    <br/>
+    <br/>
+
+    <label for="plataforma">Plataforma:</label><br/>
+    <input type="text" id="plataforma" name="plataforma" required />
+    <br/>
+    <br/>
+
+    <label for="ano">Ano de Lançamento:</label><br/>
+    <input type="number" id="ano" name="ano" min="1970" max="2100" required /><br/><br/>
+
+    <button type="submit">Cadastrar Jogo</button>
+  </form>
             </body>
                     </html>`)
         resp.end();
