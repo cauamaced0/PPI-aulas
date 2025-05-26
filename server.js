@@ -1,7 +1,7 @@
-const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const path = require('path');
+import express from 'express';
+import session from'express-session';
+import bodyparser from 'body-parser';
+import path from'path';
 
 const app = express();
 const PORT = 3050;
