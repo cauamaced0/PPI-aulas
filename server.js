@@ -2,7 +2,7 @@ import express from 'express';
 import session from'express-session';
 import bodyParser from 'body-parser';
 import path from'path';
-import readFileSync from 'fs';
+import fs from 'fs';
 
 const app = express();
 const PORT = 3050;
@@ -27,8 +27,8 @@ app.use((req, res, next) => {
 
 function renderPage(res, page, data = {}) {
   
-const layout = readFileSync('./views/layout.html', 'utf-8');
-const content = readFileSync(`./views/${page}.html`, 'utf-8');
+const layout = fs.readFileSync('./views/layout.html', 'utf-8');
+const content = fs.readFileSync(`./views/${page}.html`, 'utf-8');
 const rendered = layout.replace('{{body}}', content).replace('{{data}}', JSON.stringify(data));
   res.send(rendered);
 }
