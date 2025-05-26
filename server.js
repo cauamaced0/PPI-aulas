@@ -31,11 +31,11 @@ function renderPage(res, page, data = {}) {
   res.send(rendered);
 }
 
-app.get('/', (req, res) => renderPage(res, 'home'));
+app.get('/home', (req, res) => renderPage(res, 'home'));
 
-app.get('/login', (req, res) => renderPage(res, 'login'));
+app.get('/', (req, res) => renderPage(res, 'login'));
 
-app.post('/login', (req, res) => {
+app.post('/', (req, res) => {
   const { usuario, senha } = req.body;
   if (usuarios[usuario] && usuarios[usuario] === senha) {
     req.session.usuario = usuario;
