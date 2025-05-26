@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario cadastro</title>
+</head>
+<body>
+    <h2>Cadastro de Fornecedor</h2>
+<form method="POST">
+  <script>
+   
+    const campos = {
+      cnpj: "CNPJ", razao_social: "Razão Social", nome_fantasia: "Nome Fantasia",
+      endereco: "Endereço", cidade: "Cidade", uf: "UF",
+      cep: "CEP", email: "Email", telefone: "Telefone"
+    };
+
+    for (let campo in campos) {
+      document.write(`<label>${campos[campo]}: <input type="text" name="${campo}" value="${dados[campo] || ''}"></label><br>`);
+      if (erros[campo]) document.write(`<span style="color:red">${erros[campo]}</span><br>`);
+    }
+  </script>
+  <button type="submit">Cadastrar</button>
+</form>
+
+<h3>Fornecedores Cadastrados</h3>
+<ul>
+  <script>
+    const { fornecedores = [] } = {data};
+    fornecedores.forEach(f => {
+      document.write(`<li>${f.razao_social} (${f.cnpj}) - ${f.cidade}/${f.uf}</li>`);
+    });
+  </script>
+</ul>
+</body>
+</html>

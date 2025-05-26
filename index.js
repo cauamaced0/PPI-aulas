@@ -1,74 +1,87 @@
-import express from "express";
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const port = 3050;
-const host = "0.0.0.0";
+const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
-
-app.use(express.urlencoded({extended: true}))
-
-app.use(express.static(path.join(__dirname, 'PPI-AULAS')));
+const PORT = 3000;
 
 
-// o HTML nao aparecia a menos q fosse feito dentro do app.get
-app.get("/",(req,resp)=> 
-    {
-        resp.send(` <html>
-            <head>
-                <title> Pagina Inicial </title>
-            </head>
-            <body>
-             <h1>Cadastro de Jogo</h1>
-  <form action="/" method="POST">
-    <label for="titulo">Título do Jogo:</label>
-    <br/>
-    <input type="text" id="titulo" name="titulo" required />
-    <br/>
-    <br/>
+const usuarios = { admin: '1234' };
+const fornecedores = [];
 
-    <label for="genero">Gênero:</label><br/>
-    <input type="text" id="genero" name="genero" required />
-    <br/>
-    <br/>
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({
+  secret: 'segredo-super-seguro',
+  resave: false,
+  saveUninitialized: true
+}));
 
-    <label for="plataforma">Plataforma:</label><br/>
-    <input type="text" id="plataforma" name="plataforma" required />
-    <br/>
-    <br/>
 
-    <label for="ano">Ano de Lançamento:</label><br/>
-    <input type="number" id="ano" name="ano" min="1970" max="2100" required /><br/><br/>
-
-    <button type="submit">Cadastrar Jogo</button>
-  </form>
-            </body>
-                    </html>`)
-        resp.end();
-    })
-
-    app.post('/', (req, res) => {
-    const { titulo, genero, plataforma, ano } = req.body;
-
-    console.log('Jogo cadastrado:');
-    console.log(`Título: ${titulo}`);
-    console.log(`Gênero: ${genero}`);
-    console.log(`Plataforma: ${plataforma}`);
-    console.log(`Ano: ${ano}`);
-
-    res.send(`
-        <h2>Jogo cadastrado com sucesso!</h2>
-        <p><strong>Título:</strong> ${titulo}</p>
-        <p><strong>Gênero:</strong> ${genero}</p>
-        <p><strong>Plataforma:</strong> ${plataforma}</p>
-        <p><strong>Ano:</strong> ${ano}</p>
-        <a href="/">Cadastrar outro</a>
-    `);
+app.use((req, res, next) => {
+  res.locals.usuario = req.session.usuario;
+  next();
 });
-app.listen(port,host, () => {
-  console.log('App de exemplo esta rodando na porta 3050' )
-})
+
+function renderPage(res, page, data = {}) {
+  const layout = require('fs').readFileSync('./views/layout.html', 'utf-8');
+  const content = require('fs').readFileSync(`./views/${page}.html`, 'utf-8');
+  const rendered = layout.replace('{{body}}', content).replace('{{data}}', JSON.stringify(data));
+  res.send(rendered);
+}
+
+app.get('/', (req, res) => renderPage(res, 'home'));
+
+app.get('/login', (req, res) => renderPage(res, 'login'));
+
+app.post('/login', (req, res) => {
+  const { usuario, senha } = req.body;
+  if (usuarios[usuario] && usuarios[usuario] === senha) {
+    req.session.usuario = usuario;
+    req.session.mensagem = 'Login realizado com sucesso!';
+    res.redirect('/');
+  } else {
+    req.session.mensagem = 'Usuário ou senha inválidos.';
+    res.redirect('/login');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.send(`<script>alert("Logout efetuado com sucesso!"); window.location.href="/";</script>`);
+  });
+});
+
+app.get('/fornecedor', (req, res) => {
+  const data = { erros: {}, fornecedores, mensagem: req.session.mensagem || null };
+  req.session.mensagem = null;
+  renderPage(res, 'fornecedor', data);
+});
+
+app.post('/fornecedor', (req, res) => {
+  const campos = ['cnpj', 'razao_social', 'nome_fantasia', 'endereco', 'cidade', 'uf', 'cep', 'email', 'telefone'];
+  const erros = {};
+  const fornecedor = {};
+
+  campos.forEach(campo => {
+    const valor = req.body[campo]?.trim();
+    if (!valor) {
+      erros[campo] = `O campo ${campo} é obrigatório.`;
+    } else {
+      fornecedor[campo] = valor;
+    }
+  });
+
+  if (Object.keys(erros).length > 0) {
+    renderPage(res, 'fornecedor', { erros, fornecedores, dados: req.body });
+  } else {
+    fornecedores.push(fornecedor);
+    req.session.mensagem = 'Fornecedor cadastrado com sucesso!';
+    res.redirect('/fornecedor');
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
