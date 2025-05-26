@@ -29,9 +29,10 @@ function renderPage(res, page, data = {}) {
   
 const layout = fs.readFileSync('./views/layout.html', 'utf-8');
 const content = fs.readFileSync(`./views/${page}.html`, 'utf-8');
-const rendered = layout.replace('{{body}}', content).replace('{{data}}', JSON.stringify(data));
+const rendered = layout .replace('{{body}}', content).replace('{{data}}', JSON.stringify(data));
   res.send(rendered);
 }
+
 
 app.get('/', (req, res) => renderPage(res, 'home'));
 
