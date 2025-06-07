@@ -1,88 +1,72 @@
-import express from 'express';
-import session from'express-session';
-import bodyParser from 'body-parser';
-import path from'path';
-import fs from 'fs';
+const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const app = express();
-const PORT = 3050;
-
-
-const usuarios = { admin: '1234' };
-const fornecedores = [];
+const PORT = 3000;
 
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(session({
-  secret: 'segredo-super-seguro',
+  secret: 'segredo123',
   resave: false,
   saveUninitialized: true
 }));
 
+let produtos = [];
 
-app.use((req, res, next) => {
-  res.locals.usuario = req.session.usuario;
-  next();
-});
 
-function renderPage(res, page, data = {}) {
-  
-const layout = fs.readFileSync('./views/layout.html', 'utf-8');
-const content = fs.readFileSync(`./views/${page}.html`, 'utf-8');
-const rendered = layout .replace('{{body}}', content).replace('{{data}}', JSON.stringify(data));
-  res.send(rendered);
+function verificarLogin(req, res, next) {
+  if (req.session.usuario) {
+    next();
+  } else {
+    res.send('Você precisa fazer login para acessar esta página. <a href="/">Voltar</a>');
+  }
 }
 
 
-app.get('/', (req, res) => renderPage(res, 'home'));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
-app.get('/fornecedor', (req, res) => renderPage(res, 'fornecedor', { dados: {}, erros: {}, fornecedores }));
 
-app.post('/fornecedor', (req, res) => {
-  const { usuario, senha } = req.body;
-  if (usuarios[usuario] && usuarios[usuario] === senha) {
-    req.session.usuario = usuario;
-    req.session.mensagem = 'Login realizado com sucesso!';
-    res.redirect('/');
+app.post('/login', (req, res) => {
+  const nome = req.body.username;
+  if (nome) {
+    req.session.usuario = nome;
+    res.cookie('ultimoAcesso', new Date().toLocaleString());
+    res.redirect('/cadastro');
   } else {
-    req.session.mensagem = 'Usuário ou senha inválidos.';
-    res.redirect('/login');
+    res.send('Nome inválido. <a href="/">Voltar</a>');
   }
 });
 
-app.get('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.send(`<script>alert("Logout efetuado com sucesso!"); window.location.href="/";</script>`);
-  });
+
+app.get('/cadastro', verificarLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
 });
 
-app.get('/fornecedor', (req, res) => {
-  const data = { erros: {}, fornecedores, mensagem: req.session.mensagem || null };
-  req.session.mensagem = null;
-  renderPage(res, 'fornecedor', data);
+
+app.post('/cadastro', verificarLogin, (req, res) => {
+  const p = {
+    codigo: req.body.codigo,
+    descricao: req.body.descricao,
+    precoCusto: req.body.precoCusto,
+    precoVenda: req.body.precoVenda,
+    validade: req.body.validade,
+    estoque: req.body.estoque,
+    fabricante: req.body.fabricante
+  };
+  produtos.push(p);
+  res.redirect('/cadastro');
 });
 
-app.post('/fornecedor', (req, res) => {
-  const campos = ['cnpj', 'razao_social', 'nome_fantasia', 'endereco', 'cidade', 'uf', 'cep', 'email', 'telefone'];
-  const erros = {};
-  const fornecedor = {};
-
-  campos.forEach(campo => {
-    const valor = req.body[campo]?.trim();
-    if (!valor) {
-      erros[campo] = `O campo ${campo} é obrigatório.`;
-    } else {
-      fornecedor[campo] = valor;
-    }
-  });
-
-  if (Object.keys(erros).length > 0) {
-    renderPage(res, 'fornecedor', { erros, fornecedores, dados: req.body });
-  } else {
-    fornecedores.push(fornecedor);
-    req.session.mensagem = 'Fornecedor cadastrado com sucesso!';
-    res.redirect('/fornecedor');
-  }
+// API para obter os produtos
+app.get('/produtos', verificarLogin, (req, res) => {
+  res.json({ produtos });
 });
 
 app.listen(PORT, () => {
