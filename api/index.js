@@ -7,13 +7,12 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const app = express();
-const PORT = 3000;
 
-// Corrigindo __dirname para funcionar com ES Modules
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
@@ -33,7 +32,7 @@ function verificarLogin(req, res, next) {
 }
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
 app.post('/login', (req, res) => {
@@ -48,7 +47,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/cadastro', verificarLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+  res.sendFile(path.join(__dirname, '../public', 'cadastro.html'));
 });
 
 app.post('/cadastro', verificarLogin, (req, res) => {
@@ -69,6 +68,5 @@ app.get('/produtos', verificarLogin, (req, res) => {
   res.json({ produtos });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+
+export default app;
