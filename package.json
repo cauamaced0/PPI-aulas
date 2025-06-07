@@ -20,5 +20,6 @@
   "homepage": "https://github.com/cauamaced0/PPI-aulas#readme",
   "dependencies": {
     "express": "^5.1.0"
-  }
+  },
+  "devDependencies": {}
 }
