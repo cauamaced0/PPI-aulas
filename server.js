@@ -1,11 +1,17 @@
-const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const path = require('path');
+import express from 'express';
+import session from 'express-session';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const app = express();
 const PORT = 3000;
+
+// Corrigindo __dirname para funcionar com ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,7 +24,6 @@ app.use(session({
 
 let produtos = [];
 
-
 function verificarLogin(req, res, next) {
   if (req.session.usuario) {
     next();
@@ -27,11 +32,9 @@ function verificarLogin(req, res, next) {
   }
 }
 
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-
 
 app.post('/login', (req, res) => {
   const nome = req.body.username;
@@ -44,11 +47,9 @@ app.post('/login', (req, res) => {
   }
 });
 
-
 app.get('/cadastro', verificarLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
 });
-
 
 app.post('/cadastro', verificarLogin, (req, res) => {
   const p = {
@@ -64,7 +65,6 @@ app.post('/cadastro', verificarLogin, (req, res) => {
   res.redirect('/cadastro');
 });
 
-// API para obter os produtos
 app.get('/produtos', verificarLogin, (req, res) => {
   res.json({ produtos });
 });
